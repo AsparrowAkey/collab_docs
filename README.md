@@ -1,18 +1,17 @@
 # CollabDocs
 
-To start your Phoenix server:
+A collaborative document editor built with **Elixir** and **Phoenix LiveView**, inspired by Notion.  
+This project demonstrates:
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+- Real-time **CRUD operations** on documents  
+- **User authentication** and secure sessions  
+- Deployment ready architecture for **cloud hosting**  
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+---
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## Features
 
-## Learn more
-
-* Official website: https://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+- Create, edit, and delete documents  
+- Real-time collaboration across multiple users  
+- User sign-up and login with secure password handling  
+- Live updates with **Phoenix LiveView**  
