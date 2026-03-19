@@ -15,6 +15,7 @@ defmodule CollabDocs.Application do
       # Start a worker by calling: CollabDocs.Worker.start_link(arg)
       # {CollabDocs.Worker, arg},
       # Start to serve requests, typically the last entry
+      CollabDocsWeb.Presence,
       CollabDocsWeb.Endpoint
     ]
 

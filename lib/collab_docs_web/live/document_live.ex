@@ -2,10 +2,11 @@ defmodule CollabDocsWeb.DocumentLive do
   use CollabDocsWeb, :live_view
 
   alias CollabDocs.Documents
-  alias CollabDocs.Documents.Document
+
 
   @impl true
-def handle_event("edit", %{"value" => content}, socket) do
+def handle_event("edit", %{"content" => content}, socket) do
+  IO.inspect(content, label: ">>> TYPING")
   document = socket.assigns.document
 
   # Update the database
@@ -21,31 +22,63 @@ def handle_event("edit", %{"value" => content}, socket) do
     {:document_updated, updated.content}
   )
 
-  # Update your own view
-  {:noreply, assign(socket, document: updated)}
-end
+  {:noreply, socket}
+  end
+
+  # Document content updates
+  @impl true
+  def handle_info({:document_updated, content}, socket) do
+    IO.inspect(content, label: ">>> RECEIVED UPDATE")
+    updated = %{socket.assigns.document | content: content}
+    {:noreply, assign(socket, document: updated)}
+  end
 
   # Handle updates from other users
   @impl true
-  def handle_info({:document_updated, content}, socket) do
-    updated = %{socket.assigns.document | content: content}
-    {:noreply, assign(socket, document: updated)}
-end
+  def handle_info(
+      %Phoenix.Socket.Broadcast{event: "presence_diff"},
+      socket) do
+  presences = CollabDocsWeb.Presence.list(socket.assigns.topic)
+  {:noreply, assign(socket, presences: presences)}
+  end
 
+  # Catch all for message errors
+  @impl true
+  def handle_info(msg, socket) do
+    IO.inspect(msg, label: "Unhandled message")
+    {:noreply, socket}
+  end
+
+  # Initializes the state and real time connections of a view
   @impl true
   def mount(%{"id" => id}, _session, socket) do
     document = Documents.get_document!(id)
     topic = "document:#{id}"
+    user_id = "user_#{:rand.uniform(1000)}"
 
+    presences =
     if connected?(socket) do
-    Phoenix.PubSub.subscribe(CollabDocs.PubSub, topic)
+      Phoenix.PubSub.subscribe(CollabDocs.PubSub, topic)
+
+    {:ok, _} =
+      CollabDocsWeb.Presence.track(
+        self(),
+        topic,
+        user_id,
+        %{online_at: System.system_time(:second)}
+      )
+
+    CollabDocsWeb.Presence.list(topic)
+    else
+      %{}
   end
 
-    {:ok,
-    socket
-    |> assign(:document, document)
-    |> assign(:topic, topic)}
-
+   {:ok,
+   socket
+   |> assign(:document, document)
+   |> assign(:topic, topic)
+   |> assign(:user_id, user_id)
+   |> assign(:presences, presences)}
   end
 
   @impl true
@@ -54,12 +87,16 @@ end
     <div>
       <h1><%= @document.title %></h1>
 
+      <p>Users online: <%= map_size(@presences) %></p>
+    <form phx-change="edit">
       <textarea
-        phx-change="edit"
+        id={"document-content-#{@document.id}"}
+        name="content"
         phx-debounce="300"
         rows="10"
         cols="80"
       ><%= @document.content %></textarea>
+    </form>
     </div>
     """
   end
