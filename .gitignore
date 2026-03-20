@@ -35,3 +35,7 @@ collab_docs-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Configuration file for production secrets
+/config/prod.secret.exs
+.env
+
