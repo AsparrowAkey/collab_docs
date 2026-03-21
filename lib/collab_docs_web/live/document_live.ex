@@ -128,7 +128,7 @@ defmodule CollabDocsWeb.DocumentLive do
 
       <div style="min-height: 24px; margin-bottom: 8px;">
         <%= for {user_id, %{metas: [meta | _]}} <- @presences,
-            user_id != socket.assigns.user_id,
+            user_id != @user_id,
             meta[:typing] == true do %>
           <span style={"color: #{meta.color}; font-size: 14px;"}>
             Someone is typing...
