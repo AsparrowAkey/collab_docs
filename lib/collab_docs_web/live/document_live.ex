@@ -22,7 +22,7 @@ defmodule CollabDocsWeb.DocumentLive do
     {:document_updated, updated.content}
     )
 
-    {:noreply, socket}
+    {:noreply, assign(socket, :last_saved_at, System.system_time(:second))}
   end
 
   @impl true
@@ -64,7 +64,21 @@ defmodule CollabDocsWeb.DocumentLive do
       {:noreply, assign(socket, presences: presences)}
   end
 
+  # Triggers a re-render every second for the last saved indicator
+  @impl true
+  def handle_info(:tick, socket) do
+    {:noreply, socket}
+  end
 
+  defp format_last_saved(nil), do: "Not saved yet"
+  defp format_last_saved(saved_at) do
+    diff = System.system_time(:second) - saved_at
+    cond do
+      diff < 5   -> "Saved just now"
+      diff < 60  -> "Last saved #{diff} seconds ago"
+      true       -> "Last saved #{div(diff, 60)} minutes ago"
+    end
+  end
 
   # Initializes the state and real time connections of a view
   @impl true
@@ -78,6 +92,7 @@ defmodule CollabDocsWeb.DocumentLive do
     presences =
     if connected?(socket) do
       Phoenix.PubSub.subscribe(CollabDocs.PubSub, topic)
+
       {:ok, _} =
       CollabDocsWeb.Presence.track(
         self(),
@@ -88,6 +103,8 @@ defmodule CollabDocsWeb.DocumentLive do
           color: color
         }
       )
+
+      :timer.send_interval(1000, self(), :tick)
 
       CollabDocsWeb.Presence.list(topic)
       else
@@ -100,7 +117,8 @@ defmodule CollabDocsWeb.DocumentLive do
    |> assign(:topic, topic)
    |> assign(:user_id, user_id)
    |> assign(:color, color)
-   |> assign(:presences, presences)}
+   |> assign(:presences, presences)
+   |> assign(:last_saved_at, nil)}
   end
 
   @impl true
@@ -130,6 +148,10 @@ defmodule CollabDocsWeb.DocumentLive do
           </span>
         <% end %>
       </div>
+
+      <p style="font-size: 13px; color: gray;">
+        <%= format_last_saved(@last_saved_at) %>
+      </p>
 
       <p>Users online: <%= map_size(@presences) %></p>
 
