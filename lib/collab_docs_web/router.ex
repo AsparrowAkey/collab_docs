@@ -18,6 +18,7 @@ defmodule CollabDocsWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/documents", DocumentsLive, :index
     live "/documents/:id", DocumentLive, :show
   end
 
