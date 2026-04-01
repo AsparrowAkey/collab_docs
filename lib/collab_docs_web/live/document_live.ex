@@ -6,7 +6,7 @@ defmodule CollabDocsWeb.DocumentLive do
 
   @impl true
   def handle_event("edit", %{"content" => content}, socket) do
-    IO.inspect(content, label: ">>> TYPING")
+
     document = socket.assigns.document
 
     # Update the database
@@ -50,7 +50,7 @@ defmodule CollabDocsWeb.DocumentLive do
   # Document content updates
   @impl true
   def handle_info({:document_updated, content}, socket) do
-    IO.inspect(content, label: ">>> RECEIVED UPDATE")
+
     updated = %{socket.assigns.document | content: content}
     {:noreply, assign(socket, document: updated)}
   end
@@ -64,12 +64,7 @@ defmodule CollabDocsWeb.DocumentLive do
       {:noreply, assign(socket, presences: presences)}
   end
 
-  # Catch all for message errors
-  @impl true
-  def handle_info(msg, socket) do
-    IO.inspect(msg, label: "Unhandled message")
-    {:noreply, socket}
-  end
+
 
   # Initializes the state and real time connections of a view
   @impl true
