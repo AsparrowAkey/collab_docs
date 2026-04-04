@@ -20,12 +20,20 @@ defmodule CollabDocsWeb.DocumentsLive do
   end
 
   @impl true
+  def handle_event("delete_document", %{"id" => id}, socket) do
+    document = Documents.get_document!(id)
+    Documents.delete_document(document)
+    documents = Documents.list_documents()
+    {:noreply, assign(socket, :documents, documents)}
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
     <div>
       <h1>Documents</h1>
 
-      <button phx-click="create_document">
+      <button phx-click="create_document" type="button" style="cursor: pointer;">
         + New Document
       </button>
 
@@ -35,6 +43,14 @@ defmodule CollabDocsWeb.DocumentsLive do
             <a href={"/documents/#{document.id}"}>
               <%= document.title %>
             </a>
+            <button
+              phx-click="delete_document"
+              phx-value-id={document.id}
+              type="button"
+              style="cursor: pointer; color: red; margin-left: 8px;"
+            >
+            Delete
+            </button>
           </li>
         <% end %>
       </ul>
