@@ -13,6 +13,6 @@ defmodule CollabDocs.Documents.Document do
   def changeset(document, attrs) do
     document
     |> cast(attrs, [:title, :content])
-    |> validate_required([:title, :content])
+    |> validate_required([:title])
   end
 end

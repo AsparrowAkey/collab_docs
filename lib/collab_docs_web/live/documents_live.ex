@@ -13,7 +13,7 @@ defmodule CollabDocsWeb.DocumentsLive do
   def handle_event("create_document", _params, socket) do
     {:ok, document} = Documents.create_document(%{
       title: "Untitled Document",
-      content: " "
+      content: ""
     })
 
     {:noreply, push_navigate(socket, to: "/documents/#{document.id}")}
