@@ -47,6 +47,16 @@ defmodule CollabDocsWeb.DocumentLive do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("rename_document", %{"value" => title}, socket) do
+    document = socket.assigns.document
+
+    {:ok, updated} =
+    Documents.update_document(document, %{title: title})
+
+    {:noreply, assign(socket, :document, updated)}
+  end
+
   # Document content updates
   @impl true
   def handle_info({:document_updated, content}, socket) do
@@ -125,7 +135,14 @@ defmodule CollabDocsWeb.DocumentLive do
   def render(assigns) do
     ~H"""
     <div>
-      <h1><%= @document.title %></h1>
+      <input
+        type="text"
+        name="title"
+        value={@document.title}
+        phx-blur="rename_document"
+        phx-value-title={@document.title}
+        style="font-size: 24px; font-weight: bold; border: none; outline: none; width: 100%;"
+      />
 
       <div style="display: flex; gap: 8px; margin-bottom: 8px;">
       <%= for {_user_id, %{metas: [meta | _]}} <- @presences do %>
